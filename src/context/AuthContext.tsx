@@ -17,6 +17,7 @@ interface AuthContextValue {
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
+  changePassword: (newPassword: string) => Promise<void>;
   logout: () => Promise<void>;
   isManagerOrSupport: boolean;
 }
@@ -135,6 +136,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  async function changePassword(newPassword: string) {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      throw error;
+    }
+  }
+
   const value = useMemo(
     () => ({
       user,
@@ -142,6 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       login,
       register,
+      changePassword,
       logout,
       isManagerOrSupport: profile?.role === 'manager' || profile?.role === 'support',
     }),

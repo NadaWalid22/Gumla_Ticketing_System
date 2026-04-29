@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import SubmissionPage from './pages/SubmissionPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
 import TicketHistoryPage from './pages/TicketHistoryPage';
+import ChangePasswordPage from './pages/ChangePasswordPage';
 import { useAuth } from './context/AuthContext';
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
             <span>Gumla Internal Ticketing</span>
           <div className="nav-actions">
             <Link to="/history">History</Link>
+            <Link to="/change-password">Password</Link>
             {isManagerOrSupport && <Link to="/admin">Dashboard</Link>}
             <button type="button" onClick={() => void logout()}>
               Logout
@@ -38,6 +40,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <TicketHistoryPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/change-password"
+          element={
+            <ProtectedRoute>
+              <ChangePasswordPage />
             </ProtectedRoute>
           }
         />
