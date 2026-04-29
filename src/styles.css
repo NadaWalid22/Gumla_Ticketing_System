@@ -33,11 +33,12 @@ body {
 .nav-actions button {
   color: #fff;
   text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
   padding: 0.35rem 0.7rem;
   border-radius: 8px;
   cursor: pointer;
+  font-weight: 600;
 }
 
 .center-screen {
@@ -237,6 +238,11 @@ button.secondary {
 @media (max-width: 760px) {
   .filter-grid {
     grid-template-columns: 1fr;
+  }
+
+  .nav-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 
   .topbar {

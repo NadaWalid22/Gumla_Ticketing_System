@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { DEFAULT_DEPARTMENTS, ISSUE_LEVEL_OPTIONS, MAX_SCREENSHOT_MB, MODULES } from '../lib/constants';
+import { DEFAULT_DEPARTMENTS, ISSUE_LEVEL_OPTIONS, MAX_SCREENSHOT_MB, MODULES, STATUS_OPTIONS } from '../lib/constants';
 import { createTicket, getDepartments, getEmployeeTickets, uploadTicketScreenshot } from '../lib/tickets';
 import { useAuth } from '../context/AuthContext';
 import type { Ticket } from '../types';
@@ -18,6 +18,7 @@ export default function SubmissionPage() {
   const [error, setError] = useState('');
   const [historyBusy, setHistoryBusy] = useState(false);
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [historyStatusFilter, setHistoryStatusFilter] = useState('');
 
   useEffect(() => {
     void (async () => {
@@ -95,6 +96,9 @@ export default function SubmissionPage() {
         <div className="nav-actions">
           <Link className="primary-btn-link" to="/history">
             Ticket History
+          </Link>
+          <Link className="primary-btn-link" to="/change-password">
+            Change Password
           </Link>
           {isManagerOrSupport && (
             <Link className="primary-btn-link" to="/admin">
@@ -174,9 +178,22 @@ export default function SubmissionPage() {
           <h3>My Ticket History</h3>
           {historyBusy && <span>Loading...</span>}
         </div>
+        <label>
+          Status Filter
+          <select value={historyStatusFilter} onChange={(e) => setHistoryStatusFilter(e.target.value)}>
+            <option value="">All</option>
+            {STATUS_OPTIONS.map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
+        </label>
 
         <div className="ticket-list">
-          {tickets.map((ticket) => (
+          {tickets
+            .filter((ticket) => (historyStatusFilter ? ticket.status === historyStatusFilter : true))
+            .map((ticket) => (
             <article key={ticket.id} className="ticket-card">
               <div className="row-between">
                 <strong>Ticket #{ticket.id.slice(0, 8)}</strong>
