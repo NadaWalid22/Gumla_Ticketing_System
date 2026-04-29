@@ -23,6 +23,7 @@ begin
     alter type public.ticket_status add value if not exists 'Hold';
     alter type public.ticket_status add value if not exists 'In Progress';
     alter type public.ticket_status add value if not exists 'Done';
+    alter type public.ticket_status add value if not exists 'Closed';
     alter type public.ticket_status add value if not exists 'Open';
     alter type public.ticket_status add value if not exists 'Resolved';
   end if;

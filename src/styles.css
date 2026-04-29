@@ -225,6 +225,10 @@ button.secondary {
   background: #16a34a;
 }
 
+.badge.closed {
+  background: #475569;
+}
+
 .badge.resolved {
   background: #16a34a;
 }

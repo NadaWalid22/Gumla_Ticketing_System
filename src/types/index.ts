@@ -1,6 +1,6 @@
 export type UserRole = 'employee' | 'manager' | 'support';
 
-export type TicketStatus = 'Done' | 'In Progress' | 'Hold' | 'Open' | 'Resolved';
+export type TicketStatus = 'Done' | 'In Progress' | 'Hold' | 'Closed' | 'Open' | 'Resolved';
 export type IssueLevel = 'Low' | 'Medium' | 'High' | 'Critical';
 
 export interface AppUser {
