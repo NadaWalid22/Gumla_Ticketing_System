@@ -16,7 +16,8 @@ interface AuthContextValue {
   profile: AppUser | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<{ needsEmailVerification: boolean }>;
+  resendVerificationEmail: (email: string) => Promise<void>;
   changePassword: (newPassword: string) => Promise<void>;
   logout: () => Promise<void>;
   isManagerOrSupport: boolean;
@@ -112,10 +113,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function register(email: string, password: string) {
+  async function register(email: string, password: string): Promise<{ needsEmailVerification: boolean }> {
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
     });
 
     if (error) {
@@ -123,10 +127,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     if (!data.user) {
-      throw new Error('Account created. Disable email confirmation in Supabase to allow instant login.');
+      return { needsEmailVerification: true };
     }
 
-    await ensureUserProfile({ uid: data.user.id, email: email.trim() });
+    if (data.session?.user && data.user.email) {
+      await ensureUserProfile({ uid: data.user.id, email: email.trim() });
+      return { needsEmailVerification: false };
+    }
+
+    return { needsEmailVerification: true };
+  }
+
+  async function resendVerificationEmail(email: string) {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email.trim(),
+      options: {
+        emailRedirectTo: `${window.location.origin}/login`,
+      },
+    });
+
+    if (error) {
+      throw error;
+    }
   }
 
   async function logout() {
@@ -150,6 +173,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       login,
       register,
+      resendVerificationEmail,
       changePassword,
       logout,
       isManagerOrSupport: profile?.role === 'manager' || profile?.role === 'support',

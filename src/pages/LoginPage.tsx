@@ -3,11 +3,12 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
-  const { user, login, register } = useAuth();
+  const { user, login, register, resendVerificationEmail } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [busy, setBusy] = useState(false);
 
   if (user) {
@@ -17,13 +18,41 @@ export default function LoginPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    setMessage('');
     setBusy(true);
     try {
       if (mode === 'login') {
         await login(email, password);
       } else {
-        await register(email, password);
+        const result = await register(email, password);
+        if (result.needsEmailVerification) {
+          setMessage('Account created. Check your email to verify, then sign in.');
+          setMode('login');
+        }
       }
+    } catch (err) {
+      const msg = (err as Error).message;
+      if (msg.toLowerCase().includes('email not confirmed')) {
+        setError('Email not verified. Open your email verification link, or resend verification below.');
+      } else {
+        setError(msg);
+      }
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleResendVerification() {
+    if (!email.trim()) {
+      setError('Enter your email first, then click resend.');
+      return;
+    }
+    setBusy(true);
+    setError('');
+    setMessage('');
+    try {
+      await resendVerificationEmail(email);
+      setMessage('Verification email sent. Please check inbox/spam.');
     } catch (err) {
       setError((err as Error).message);
     } finally {
@@ -61,12 +90,17 @@ export default function LoginPage() {
             />
           </label>
 
+          {message && <div className="success">{message}</div>}
           {error && <div className="error">{error}</div>}
 
           <button className="primary" type="submit" disabled={busy}>
             {busy ? 'Please wait...' : mode === 'login' ? 'Login' : 'Create account'}
           </button>
         </form>
+
+        <button className="link-btn" type="button" onClick={() => void handleResendVerification()} disabled={busy}>
+          Resend Verification Email
+        </button>
 
         <button
           className="link-btn"
